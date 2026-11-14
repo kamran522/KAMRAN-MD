@@ -7,8 +7,8 @@ async function helpCommand(sock, chatId, message) {
 ╔═══════════════════╗
    *🤖 ${settings.botName || 'KnightBot-MD'}*  
    Version: *${settings.version || '3.0.0'}*
-   by ${settings.botOwner || 'Mr Unique Hacker'}
-   YT : ${global.ytch}
+   by ${settings.botOwner}
+   Owner number: +${settings.ownerNumber}
 ╚═══════════════════╝
 
 *Available Commands:*
@@ -74,7 +74,7 @@ async function helpCommand(sock, chatId, message) {
 ║ ➤ .clearsession
 ║ ➤ .antidelete
 ║ ➤ .cleartmp
-║ ➤ .update
+║ ➤ .update (disabled: manual deployment only)
 ║ ➤ .settings
 ║ ➤ .setpp <reply to image>
 ║ ➤ .autoreact <on/off>
@@ -95,8 +95,8 @@ async function helpCommand(sock, chatId, message) {
 ║ ➤ .blur <image>
 ║ ➤ .simage <reply to sticker>
 ║ ➤ .sticker <reply to image>
-║ ➤ .removebg
-║ ➤ .remini
+║ ➤ .removebg (disabled: external upload)
+║ ➤ .remini (disabled: external upload)
 ║ ➤ .crop (reply sticker/image/video)
 ║ ➤ .tgsticker <Link>
 ║ ➤ .meme
@@ -132,9 +132,9 @@ async function helpCommand(sock, chatId, message) {
 ║ ➤ .ai <question>
 ║ ➤ .gpt <question>
 ║ ➤ .gemini <question>
-║ ➤ .imagine <prompt>
+║ ➤ .imagine <prompt> (disabled: remote image AI)
 ║ ➤ .flux <prompt>
-║ ➤ .sora <prompt>
+║ ➤ .sora <prompt> (disabled: remote video AI)
 ╚═══════════════════╝
 
 ╔═══════════════════╗

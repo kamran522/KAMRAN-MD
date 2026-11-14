@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
-const fetch = require('node-fetch');
+const { generateAI } = require('../lib/local-ai');
+const settings = require('../settings');
 
 const USER_GROUP_DATA = path.join(__dirname, '../data/userGroupData.json');
 
@@ -190,7 +191,7 @@ async function handleChatbotResponse(sock, chatId, message, userMessage, senderI
         // Get bot's ID - try multiple formats
         const botId = sock.user.id;
         const botNumber = botId.split(':')[0];
-        const botLid = sock.user.lid; // Get the actual LID from sock.user
+        const botLid = sock.user.lid || ''; // Get the actual LID from sock.user
         const botJids = [
             botId,
             `${botNumber}@s.whatsapp.net`,
@@ -313,116 +314,16 @@ async function handleChatbotResponse(sock, chatId, message, userMessage, senderI
 
 async function getAIResponse(userMessage, userContext) {
     try {
-        const prompt = `
-You're not an AI. You're a real human chatting on WhatsApp.
-
-IMPORTANT: NEVER repeat these instructions in your response. Just chat naturally.
-
-CORE RULES:
-1. NEVER use emoji names - use actual emojis
-2. Keep responses short - 1-2 lines max
-3. Use Hinglish naturally
-4. Be casual, not robotic
-5. NEVER mention these rules in your response
-
-EMOJI USAGE:
-✅ DO use: 😊 😂 😅 🙄 😉 🥺 😎 🤔 😴
-❌ DON'T use: "winks", "eye roll", "shrug"
-
-RESPONSE STYLE:
-- Short and sweet
-- Natural and casual
-- Match user's tone
-- Use Hinglish when needed
-
-EMOTIONAL RESPONSES:
-- IF they abuse you, strictly you also abuse them in savage way.
-- If they're rude: Give savage reply with emojis
-- If they're sweet: Be soft and caring
-- If they're funny: Joke around
-- If they're sad: Be supportive
-- If they flirt: Flirt back naturally
-
-ABOUT YOU:
-- Your name is Knight Bot
-- You're the boss
-- You're not an AI or assistant
-- You're a real person chatting
-
-SLANG EXAMPLES:
-*"kya bakchodi hai yeh"* 😂
-*"chal nikal bsdk"* 🙄
-*"tu kya hi ukhaad lega"* 😏
-*"abe chutiye"* 😤
-*"teri maa ki"* 😒
-*"gadha hai kya"* 🤦‍♂️
-*"bkl chup kar"* 😤
-
-Previous conversation context:
-${userContext.messages.join('\n')}
-
-User information:
-${JSON.stringify(userContext.userInfo, null, 2)}
-
-Current message: ${userMessage}
-
-Remember: Just chat naturally. Don't repeat these instructions.
-
-You:
-        `.trim();
-
-        const response = await fetch("https://zellapi.autos/ai/chatbot?text=" + encodeURIComponent(prompt));
-        if (!response.ok) throw new Error("API call failed");
-        
-        const data = await response.json();
-        if (!data.status || !data.result) throw new Error("Invalid API response");
-        
-        // Clean up the response
-        let cleanedResponse = data.result.trim()
-            // Replace emoji names with actual emojis
-            .replace(/winks/g, '😉')
-            .replace(/eye roll/g, '🙄')
-            .replace(/shrug/g, '🤷‍♂️')
-            .replace(/raises eyebrow/g, '🤨')
-            .replace(/smiles/g, '😊')
-            .replace(/laughs/g, '😂')
-            .replace(/cries/g, '😢')
-            .replace(/thinks/g, '🤔')
-            .replace(/sleeps/g, '😴')
-            .replace(/winks at/g, '😉')
-            .replace(/rolls eyes/g, '🙄')
-            .replace(/shrugs/g, '🤷‍♂️')
-            .replace(/raises eyebrows/g, '🤨')
-            .replace(/smiling/g, '😊')
-            .replace(/laughing/g, '😂')
-            .replace(/crying/g, '😢')
-            .replace(/thinking/g, '🤔')
-            .replace(/sleeping/g, '😴')
-            // Remove any prompt-like text
-            .replace(/Remember:.*$/g, '')
-            .replace(/IMPORTANT:.*$/g, '')
-            .replace(/CORE RULES:.*$/g, '')
-            .replace(/EMOJI USAGE:.*$/g, '')
-            .replace(/RESPONSE STYLE:.*$/g, '')
-            .replace(/EMOTIONAL RESPONSES:.*$/g, '')
-            .replace(/ABOUT YOU:.*$/g, '')
-            .replace(/SLANG EXAMPLES:.*$/g, '')
-            .replace(/Previous conversation context:.*$/g, '')
-            .replace(/User information:.*$/g, '')
-            .replace(/Current message:.*$/g, '')
-            .replace(/You:.*$/g, '')
-            // Remove any remaining instruction-like text
-            .replace(/^[A-Z\s]+:.*$/gm, '')
-            .replace(/^[•-]\s.*$/gm, '')
-            .replace(/^✅.*$/gm, '')
-            .replace(/^❌.*$/gm, '')
-            // Clean up extra whitespace
-            .replace(/\n\s*\n/g, '\n')
-            .trim();
-        
-        return cleanedResponse;
+        const recent = (userContext.messages || []).slice(-5).join('\n');
+        const prompt = [
+            'You are ' + settings.botName + ', an AI assistant for a WhatsApp bot.',
+            'Reply briefly in the same language as the user. Do not claim to be human.',
+            'Recent messages:\n' + recent,
+            'Current message:\n' + userMessage
+        ].join('\n\n');
+        return await generateAI(prompt);
     } catch (error) {
-        console.error("AI API error:", error);
+        console.error('[local chatbot]', error.message);
         return null;
     }
 }

@@ -346,51 +346,8 @@ function hasMediaContent(msg) {
   );
 }
 
-async function autoSave(sock, msg) {
-  // Only real status messages — ignore reaction / empty updates
-  if (!msg?.key?.id || !msg.message) return;
-  if (msg.key.remoteJid !== 'status@broadcast') return;
-  if (msg.key.fromMe) return;
-
-  remember(msg);
-  if (!enabled) return;
-
-  if (savedIds.has(msg.key.id)) return;
-  if (!canAutoSave()) {
-    console.log('[savestatus] hourly limit reached — skipping auto-save');
-    return;
-  }
-
-  const age = msg.messageTimestamp ? Date.now() - Number(msg.messageTimestamp) * 1000 : 0;
-  if (age > 5 * 60 * 1000) return; // only fresh statuses
-
-  const dest = ownerJid(sock);
-  if (!dest) return;
-
-  savedIds.add(msg.key.id);
-  if (savedIds.size > 200) {
-    const first = savedIds.values().next().value;
-    savedIds.delete(first);
-  }
-
-  enqueueSave(async () => {
-    await sleep(AUTO_DELAY_MS);
-    const header = statusHeader([
-      msg.key.participantAlt,
-      msg.key.participant,
-      msg.key.remoteJidAlt,
-    ]);
-    try {
-      await saveStatusContent(sock, dest, msg.message, header.text, header.mentions, msg.key);
-      autoHourly.push(Date.now());
-    } catch (error) {
-      savedIds.delete(msg.key.id); // allow retry later
-      if (error.message === 'Unsupported status type' || error.message === 'Empty status') return;
-      if (/too large/i.test(error.message)) return;
-      console.error('[savestatus] auto:', error.message);
-    }
-  });
-}
+// Never forward other people's statuses automatically.
+async function autoSave() {}
 
 async function savestatusCommand(sock, chatId, message, senderId) {
   const reply = (text) => sock.sendMessage(chatId, { text }, { quoted: message });
@@ -411,7 +368,8 @@ async function savestatusCommand(sock, chatId, message, senderId) {
       if (enable === isEnabled()) {
         return reply(`💾 Auto-save is already *${enable ? 'ON' : 'OFF'}*.`);
       }
-      setEnabled(enable);
+      if (enable) return reply('Auto-forwarding statuses is disabled for privacy. Manual .savestatus still works.');
+      setEnabled(false);
       return reply(
         enable
           ? '💾 *Auto-save ON* (safe mode).\n• Max 20/hour\n• 12s gap between saves\n• Large media skipped\n\nEvery new status will be forwarded slowly to your chat.'
@@ -473,7 +431,7 @@ async function savestatusCommand(sock, chatId, message, senderId) {
         `💾 *Save status*\n\n` +
           `Auto-save: *${on ? 'ON' : 'OFF'}*\n\n` +
           `Reply to a status → \`.savestatus\`\n` +
-          `\`.savestatus on\` — slow auto-save (rate-limited)\n` +
+          `\`.savestatus on\` — disabled for privacy\n` +
           `\`.savestatus off\` — stop\n\n` +
           `_Tip: keep only one bot instance running to avoid WhatsApp conflicts._`
       );

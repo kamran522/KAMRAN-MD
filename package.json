@@ -1,7 +1,7 @@
 {
-  "name": "knightbot",
+  "name": "kamran-md",
   "version": "1.0.0",
-  "description": "WhatsApp Bot",
+  "description": "Kamran Hasil WhatsApp bot with local session pairing and local text AI",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
@@ -12,13 +12,13 @@
     "start:fresh": "npm run reset-session && npm start",
     "install:panel": "npm install --legacy-peer-deps",
     "install:force": "npm install --force",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node scripts/security-smoke-test.js",
     "docker:build": "docker build -t docker run -e SESSION_ID=$SESSION_ID knightbot"
   },
   "keywords": [
     "whatsapp-bot"
   ],
-  "author": "",
+  "author": "Kamran Hasil",
   "license": "ISC",
   "dependencies": {
     "@adiwajshing/keyed-db": "^0.2.4",
