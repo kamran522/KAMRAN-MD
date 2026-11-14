@@ -10,6 +10,8 @@
  * - Pair Code implementation inspired by TechGod143 & DGXEON
  */
 require('./settings')
+// Session files must never be world-readable.
+process.umask(0o077)
 const { Boom } = require('@hapi/boom')
 const fs = require('fs')
 const chalk = require('chalk')
@@ -52,6 +54,10 @@ const store = require('./lib/lightweight_store')
 // Initialize store
 store.readFromFile()
 const settings = require('./settings')
+const localPairing = require('./lib/local-pairing')
+const sessionDir = path.resolve(process.env.SESSION_DIR || path.join(__dirname, 'session'))
+fs.mkdirSync(sessionDir, { recursive: true, mode: 0o700 })
+try { fs.chmodSync(sessionDir, 0o700) } catch (_) {}
 setInterval(() => store.writeToFile(), settings.storeWriteInterval || 10000)
 
 // Memory optimization - Force garbage collection if available
@@ -71,30 +77,17 @@ setInterval(() => {
     }
 }, 30_000) // check every 30 seconds
 
-let phoneNumber = "911234567890"
-let owner = JSON.parse(fs.readFileSync('./data/owner.json'))
+let owner = settings.ownerNumber
 
-global.botname = "KNIGHT BOT"
+global.botname = settings.botName
 global.themeemoji = "•"
-const pairingCode = !!phoneNumber || process.argv.includes("--pairing-code")
+const pairingCode = process.argv.includes('--pairing-code')
 const useMobile = process.argv.includes("--mobile")
-
-// Only create readline interface if we're in an interactive environment
-const rl = process.stdin.isTTY ? readline.createInterface({ input: process.stdin, output: process.stdout }) : null
-const question = (text) => {
-    if (rl) {
-        return new Promise((resolve) => rl.question(text, resolve))
-    } else {
-        // In non-interactive environment, use ownerNumber from settings
-        return Promise.resolve(settings.ownerNumber || phoneNumber)
-    }
-}
-
 
 async function startXeonBotInc() {
     try {
         let { version, isLatest } = await fetchLatestBaileysVersion()
-        const { state, saveCreds } = await useMultiFileAuthState(`./session`)
+        const { state, saveCreds } = await useMultiFileAuthState(sessionDir)
         const msgRetryCounterCache = new NodeCache()
 
         const XeonBotInc = makeWASocket({
@@ -120,6 +113,7 @@ async function startXeonBotInc() {
             keepAliveIntervalMs: 10000,
         })
 
+        localPairing.attachSocket(XeonBotInc)
         // Save credentials when they update
         XeonBotInc.ev.on('creds.update', saveCreds)
 
@@ -220,38 +214,16 @@ async function startXeonBotInc() {
 
     XeonBotInc.serializeM = (m) => smsg(XeonBotInc, m, store)
 
-    // Handle pairing code
+    // QR is served locally at http://127.0.0.1:3000 (or PAIRING_PORT).
+    // Pairing codes are requested from this same Baileys socket, not an external website.
     if (pairingCode && !XeonBotInc.authState.creds.registered) {
-        if (useMobile) throw new Error('Cannot use pairing code with mobile api')
-
-        let phoneNumber
-        if (!!global.phoneNumber) {
-            phoneNumber = global.phoneNumber
-        } else {
-            phoneNumber = await question(chalk.bgBlack(chalk.greenBright(`Please type your WhatsApp number 😍\nFormat: 6281376552730 (without + or spaces) : `)))
-        }
-
-        // Clean the phone number - remove any non-digit characters
-        phoneNumber = phoneNumber.replace(/[^0-9]/g, '')
-
-        // Validate the phone number using awesome-phonenumber
-        const pn = require('awesome-phonenumber');
-        if (!pn('+' + phoneNumber).isValid()) {
-            console.log(chalk.red('Invalid phone number. Please enter your full international number (e.g., 15551234567 for US, 447911123456 for UK, etc.) without + or spaces.'));
-            process.exit(1);
-        }
-
         setTimeout(async () => {
             try {
-                let code = await XeonBotInc.requestPairingCode(phoneNumber)
-                code = code?.match(/.{1,4}/g)?.join("-") || code
-                console.log(chalk.black(chalk.bgGreen(`Your Pairing Code : `)), chalk.black(chalk.white(code)))
-                console.log(chalk.yellow(`\nPlease enter this code in your WhatsApp app:\n1. Open WhatsApp\n2. Go to Settings > Linked Devices\n3. Tap "Link a Device"\n4. Enter the code shown above`))
+                console.log('Local pairing code:', await localPairing.requestCode())
             } catch (error) {
-                console.error('Error requesting pairing code:', error)
-                console.log(chalk.red('Failed to get pairing code. Please check your phone number and try again.'))
+                console.error('Local pairing request failed:', error.message)
             }
-        }, 3000)
+        }, 4000)
     }
 
     // Connection handling
@@ -259,7 +231,8 @@ async function startXeonBotInc() {
         const { connection, lastDisconnect, qr } = s
         
         if (qr) {
-            console.log(chalk.yellow('📱 QR Code generated. Please scan with WhatsApp.'))
+            localPairing.setQr(qr)
+            console.log(chalk.yellow('QR available on the local pairing page.'))
         }
         
         if (connection === 'connecting') {
@@ -267,6 +240,7 @@ async function startXeonBotInc() {
         }
         
         if (connection == "open") {
+            localPairing.setStatus('Connected to WhatsApp')
             console.log(chalk.magenta(` `))
             console.log(chalk.yellow(`🌿Connected to => ` + JSON.stringify(XeonBotInc.user, null, 2)))
 
@@ -291,15 +265,16 @@ async function startXeonBotInc() {
             await delay(1999)
             console.log(chalk.yellow(`\n\n                  ${chalk.bold.blue(`[ ${global.botname || 'KNIGHT BOT'} ]`)}\n\n`))
             console.log(chalk.cyan(`< ================================================== >`))
-            console.log(chalk.magenta(`\n${global.themeemoji || '•'} YT CHANNEL: MR UNIQUE HACKER`))
-            console.log(chalk.magenta(`${global.themeemoji || '•'} GITHUB: mrunqiuehacker`))
+            console.log(chalk.magenta(`\n${global.themeemoji || '•'} OWNER: ${settings.botOwner}`))
+            console.log(chalk.magenta(`${global.themeemoji || '•'} GITHUB: kamran522`))
             console.log(chalk.magenta(`${global.themeemoji || '•'} WA NUMBER: ${owner}`))
-            console.log(chalk.magenta(`${global.themeemoji || '•'} CREDIT: MR UNIQUE HACKER`))
+            console.log(chalk.magenta(`${global.themeemoji || '•'} BOT ADMIN: ${settings.botOwner}`))
             console.log(chalk.green(`${global.themeemoji || '•'} 🤖 Bot Connected Successfully! ✅`))
             console.log(chalk.blue(`Bot Version: ${settings.version}`))
         }
         
         if (connection === 'close') {
+            localPairing.setStatus('Disconnected')
             const statusCode = lastDisconnect?.error?.output?.statusCode
             const errMsg = String(lastDisconnect?.error?.message || lastDisconnect?.error || '')
             const isLoggedOut = statusCode === DisconnectReason.loggedOut || statusCode === 401
@@ -320,8 +295,7 @@ async function startXeonBotInc() {
 
             if (isLoggedOut) {
                 try {
-                    rmSync('./session', { recursive: true, force: true })
-                    console.log(chalk.yellow('Session folder deleted. Please re-authenticate.'))
+                    console.log(chalk.yellow('Logged out. Auth data kept locally for investigation; stop the bot and manually clear SESSION_DIR before pairing again.'))
                 } catch (error) {
                     console.error('Error deleting session:', error)
                 }
@@ -403,7 +377,8 @@ async function startXeonBotInc() {
 }
 
 
-// Start the bot with error handling
+// Start loopback-only pairing server and the bot.
+localPairing.start()
 startXeonBotInc().catch(error => {
     console.error('Fatal error:', error)
     process.exit(1)
@@ -416,10 +391,3 @@ process.on('unhandledRejection', (err) => {
     console.error('Unhandled Rejection:', err)
 })
 
-let file = require.resolve(__filename)
-fs.watchFile(file, () => {
-    fs.unwatchFile(file)
-    console.log(chalk.redBright(`Update ${__filename}`))
-    delete require.cache[file]
-    require(file)
-})

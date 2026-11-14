@@ -13,7 +13,7 @@ function extractMentionedJid(message) {
 
 async function sudoCommand(sock, chatId, message) {
     const senderJid = message.key.participant || message.key.remoteJid;
-    const isOwner = message.key.fromMe || await isOwnerOrSudo(senderJid, sock, chatId);
+    const isOwner = message.key.fromMe || senderJid.split(':')[0].split('@')[0] === settings.ownerNumber;
 
     const rawText = message.message?.conversation || message.message?.extendedTextMessage?.text || '';
     const args = rawText.trim().split(' ').slice(1);
