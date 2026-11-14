@@ -55,6 +55,7 @@ const store = require('./lib/lightweight_store')
 store.readFromFile()
 const settings = require('./settings')
 const localPairing = require('./lib/local-pairing')
+const terminalQR = require('qrcode-terminal')
 const sessionDir = path.resolve(process.env.SESSION_DIR || path.join(__dirname, 'session'))
 fs.mkdirSync(sessionDir, { recursive: true, mode: 0o700 })
 try { fs.chmodSync(sessionDir, 0o700) } catch (_) {}
@@ -93,7 +94,7 @@ async function startXeonBotInc() {
         const XeonBotInc = makeWASocket({
             version,
             logger: pino({ level: 'silent' }),
-            printQRInTerminal: !pairingCode,
+            printQRInTerminal: false, // Render each Baileys QR ourselves in connection.update.
             browser: ["Ubuntu", "Chrome", "20.0.04"],
             auth: {
                 creds: state.creds,
@@ -232,7 +233,13 @@ async function startXeonBotInc() {
         
         if (qr) {
             localPairing.setQr(qr)
-            console.log(chalk.yellow('QR available on the local pairing page.'))
+            if (!pairingCode) {
+                console.log(chalk.yellow('\nScan this QR in WhatsApp > Linked devices > Link a device:'));
+                terminalQR.generate(qr, { small: true })
+                console.log(chalk.yellow('QR also available on the local pairing page. Keep this QR private.\n'))
+            } else {
+                console.log(chalk.yellow('QR available on the local pairing page; pairing-code mode selected.'))
+            }
         }
         
         if (connection === 'connecting') {

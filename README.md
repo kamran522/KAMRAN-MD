@@ -26,7 +26,11 @@ The model weights must be downloaded once; subsequent AI inference runs on the s
 
 ## QR and pairing code — hosted locally
 
-The bot opens `http://127.0.0.1:3000` on **the server itself**, showing the WhatsApp QR code and a **Generate pairing code locally** button. Use WhatsApp **Linked devices** to pair the owner phone number. You can also run `node index.js --pairing-code` for terminal pairing.
+The bot **prints a scannable QR code directly in the terminal when you run `npm start`**. Open WhatsApp **Linked devices** → **Link a device** on your phone and scan the QR shown in the server's SSH terminal. You do not need to open a browser or expose any port to scan it. The QR expires and will be refreshed while waiting for login. Keep terminal output private.
+
+The optional local pairing page remains at `http://127.0.0.1:3000` on **the server itself**, showing the same WhatsApp QR code and a **Generate pairing code locally** button. If port 3000 is already occupied, the bot still prints the terminal QR; you can use `PAIRING_PORT=3001 npm start` to move the optional webpage to port 3001.
+
+You can also run `node index.js --pairing-code` to request a pairing code in the same terminal instead of displaying a terminal QR.
 
 When using a remote VPS, do **not** expose port 3000 to the internet. Instead, from your computer, use:
 
