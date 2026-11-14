@@ -89,6 +89,7 @@ async function handleJoinEvent(sock, id, participants) {
             }
 
             try {
+                throw new Error('External welcome image service disabled for privacy');
                 let profilePicUrl = `https://img.pyrocdn.com/dbKUgahg.png`;
                 try {
                     const profilePic = await sock.profilePictureUrl(mentionJid, 'image');
