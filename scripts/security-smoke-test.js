@@ -38,7 +38,7 @@ const downloaders = {
   'commands/play.js': 'e9a9964a6a3e854b1ce66c149de889f24a1ec441',
   'commands/song.js': '5f4982bf76f79403525217e57490b1c98b41060a',
   'commands/tiktok.js': 'c397d28a0b660d45cf73fc65e6031da96d961783',
-  'commands/twitter.js': '6178e1c6ce1bf8a2ce567156c7f82e9ce97b5',
+  'commands/twitter.js': '6178e1c6ce1bf8a2ce567156c7f82e9ce97b5a20',
   'commands/spotify.js': '8a741c92631599dbc6bf9296787f8cdd3a017ba7',
   'commands/video.js': '51cbed0bf997e4a4f7252b65d4cdea3cef865a39',
   'lib/ytdl2.js': 'a34e48f86f1ce442a9067cf01477f32ba487e143',
