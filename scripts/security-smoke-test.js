@@ -40,6 +40,23 @@ assert.doesNotMatch(read('commands/pair.js'), /knight-bot-paircode\.onrender\.co
 assert.match(read('commands/textmaker.js'), /require\('sharp'\)/);
 assert.match(read('commands/textmaker.js'), /async function textmakerCommand/);
 assert.match(read('commands/textmaker.js'), /function makeSVG/);
+const restoredCommands = [
+  'remini', 'removebg', 'imagine', 'sora', 'ss', 'tts', 'url',
+  'misc', 'simp', 'stupid', 'wasted'
+];
+for (const command of restoredCommands) {
+  const script = read('commands/' + command + '.js');
+  assert.doesNotMatch(script, /(?:External|Cloud|Remote) .{0,70}disabled for privacy/i, 'Outdated privacy placeholder: ' + command);
+  assert.doesNotMatch(script, /require\(['"]axios['"]\)|fetch\s*\(/, 'Unexpected cloud call in restored command: ' + command);
+}
+assert.match(read('lib/local-media.js'), /downloadContentFromMessage/);
+assert.match(read('commands/remini.js'), /\.sharpen\(/);
+assert.match(read('commands/removebg.js'), /background_removed\.png/);
+assert.match(read('commands/tts.js'), /espeak-ng/);
+assert.match(read('commands/sora.js'), /ffmpeg/);
+assert.doesNotMatch(read('commands/welcome.js'), /some-random-api\.com|img\.pyrocdn\.com/);
+assert.doesNotMatch(read('commands/goodbye.js'), /some-random-api\.com|img\.pyrocdn\.com/);
+
 assert.doesNotMatch(read('commands/textmaker.js'), /axios|fetch\s*\(|api\.textmaker|uploadImage/);
 assert.doesNotMatch(read('commands/chatbot.js'), /zellapi\.autos/);
 assert.doesNotMatch(read('lib/api.js'), /\/api\/ai\/(chat|gpt)/);

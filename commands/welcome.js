@@ -2,7 +2,6 @@ const { handleWelcome } = require('../lib/welcome');
 const { isWelcomeOn, getWelcome } = require('../lib/index');
 const { channelInfo } = require('../lib/messageConfig');
 const { lidToMention } = require('../lib/jidHelper');
-const fetch = require('node-fetch');
 
 async function welcomeCommand(sock, chatId, message, match) {
     if (!chatId.endsWith('@g.us')) {
@@ -89,30 +88,18 @@ async function handleJoinEvent(sock, id, participants) {
             }
 
             try {
-                throw new Error('External welcome image service disabled for privacy');
-                let profilePicUrl = `https://img.pyrocdn.com/dbKUgahg.png`;
-                try {
-                    const profilePic = await sock.profilePictureUrl(mentionJid, 'image');
-                    if (profilePic) profilePicUrl = profilePic;
-                } catch {
-                    console.log('Could not fetch profile picture, using default');
-                }
-
-                const apiUrl = `https://api.some-random-api.com/welcome/img/2/gaming3?type=join&textcolor=green&username=${encodeURIComponent(displayName)}&guildName=${encodeURIComponent(groupName)}&memberCount=${groupMetadata.participants.length}&avatar=${encodeURIComponent(profilePicUrl)}`;
-
-                const response = await fetch(apiUrl);
-                if (response.ok) {
-                    const imageBuffer = await response.buffer();
-                    await sock.sendMessage(id, {
-                        image: imageBuffer,
-                        caption: finalMessage,
-                        mentions,
-                        ...channelInfo
-                    });
-                    continue;
-                }
-            } catch {
-                console.log('Image generation failed, falling back to text');
+                // Locally rendered card: no third-party image API or avatar upload.
+                const { sharp, card } = require('../lib/local-media');
+                const imageBuffer = await sharp(card("Welcome " + displayName, 'KAMRAN-MD · ' + groupName, ['#092e1b', '#236046', '#d3ffd5'])).png().toBuffer();
+                await sock.sendMessage(id, {
+                    image: imageBuffer,
+                    caption: finalMessage,
+                    mentions,
+                    ...channelInfo
+                });
+                continue;
+            } catch (error) {
+                console.error('[local welcome image]', error.message);
             }
 
             await sock.sendMessage(id, {

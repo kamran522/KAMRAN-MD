@@ -19,7 +19,7 @@ async function helpCommand(sock, chatId, message) {
 ║ ➤ .help or .menu
 ║ ➤ .ping
 ║ ➤ .alive
-║ ➤ .tts <text>
+║ ➤ .tts <text> (offline speech; install espeak-ng)
 ║ ➤ .owner
 ║ ➤ .joke
 ║ ➤ .quote
@@ -34,9 +34,9 @@ async function helpCommand(sock, chatId, message) {
 ║ ➤ .vv
 ║ ➤ .vv2
 ║ ➤ .trt <text> <lang>
-║ ➤ .ss <link>
+║ ➤ .ss <link> (local link card; not website screenshot)
 ║ ➤ .jid
-║ ➤ .url
+║ ➤ .url (local image fingerprint; not public URL)
 ╚═══════════════════╝ 
 
 ╔═══════════════════╗
@@ -94,10 +94,13 @@ async function helpCommand(sock, chatId, message) {
 ╔═══════════════════╗
 🎨 *Image/Sticker Commands*:
 ║ ➤ .blur <image>
+║ ➤ .remini (reply to photo, local enhancement)
+║ ➤ .removebg (reply to photo, simple background)
+║ ➤ .wasted (reply to photo, local effect)
 ║ ➤ .simage <reply to sticker>
 ║ ➤ .sticker <reply to image>
-║ ➤ .removebg (disabled: external upload)
-║ ➤ .remini (disabled: external upload)
+║ ➤ .removebg (local plain-background removal)
+║ ➤ .remini (local enhancement and upscale)
 ║ ➤ .crop (reply sticker/image/video)
 ║ ➤ .tgsticker <Link>
 ║ ➤ .meme
@@ -133,9 +136,9 @@ async function helpCommand(sock, chatId, message) {
 ║ ➤ .ai <question>
 ║ ➤ .gpt <question>
 ║ ➤ .gemini <question>
-║ ➤ .imagine <prompt> (disabled: remote image AI)
-║ ➤ .flux <prompt>
-║ ➤ .sora <prompt> (disabled: remote video AI)
+║ ➤ .imagine <prompt> (local prompt-art card)
+║ ➤ .flux <prompt> (local prompt-art card)
+║ ➤ .sora <prompt> (local animated text card)
 ╚═══════════════════╝
 
 ╔═══════════════════╗

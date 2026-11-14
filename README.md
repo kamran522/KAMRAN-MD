@@ -62,7 +62,22 @@ Media download commands **continue to use the original external services**; they
 
 Send `.hacker KAMI` to receive a hacker-style PNG image made directly on the bot server. Other effects such as `.matrix TEXT`, `.neon TEXT`, `.metallic TEXT`, `.ice TEXT`, `.blackpink TEXT`, and `.fire TEXT` work the same way. They use the existing `sharp` package; no image API key or cloud service is needed. Text is limited to 64 characters. These are locally generated alternatives rather than replicas of the previously used third-party templates.
 
-Media download commands **continue to use the original external services**; they are not offline. Download success depends on those services and platform availability.
+## Locally restored commands (no external image API)
+
+For photos, **reply directly to a WhatsApp image** with `.remini`, `.enhance`, or `.upscale` to enhance and resize it on the bot server. Reply with `.removebg` to remove a *mostly uniform-colored edge-connected background*; this is basic color removal, **not AI person segmentation**, and the transparent PNG is returned as a document. Reply with `.wasted` for a local poster filter.
+
+Other local effects include `.heart`, `.simp`, `.stupid`, `.horny`, `.namecard`, and `.tweet`, using quoted images when provided or generating a local graphic. Welcome and goodbye cards render on the server. These are alternative designs, not copies of the formerly hosted effect templates.
+
+Use `.tts Hello world` for local speech, after installing its offline engine:
+
+```sh
+sudo apt-get update
+sudo apt-get install -y espeak-ng ffmpeg
+```
+
+Use `.imagine a sunset` for a **locally generated text/prompt-art card** and `.sora a sunset` for a **3-second animated text-card MP4** generated with FFmpeg. Neither feature produces photorealistic generative AI images or video.
+
+`.ss https://example.com` makes an offline URL information card, **not a screenshot**. `.url` replies with the SHA-256 fingerprint and dimensions of an image, **not a public upload link**. Genuine website screenshots require a separately managed local browser, while a public file URL requires serving or uploading the file; neither operation is enabled by default. None of these commands uploads your quoted WhatsApp media to a third-party image processor.
 
 ## Support group
 
@@ -76,7 +91,10 @@ The bot's `.menu` / `.help` and `.alive` messages display this group invite. Old
 - `.ai`, `.gpt`, `.gemini`, chatbot responses and translation are routed to loopback Ollama; no third-party AI prompt forwarding.
 - Automatic forwarding of deleted messages, view-once media and statuses disabled. **Manual** `.savestatus` stays available.
 - Unsafe remote ZIP update / hard Git reset disabled. Deploy reviewed commits manually.
-- Third-party content uploads, cloud TTS, screenshot rendering, image processing, image/video generation, image-card effects, and remote welcome/goodbye images remain disabled to avoid uploading text, profile pictures or media. Textmaker effects (including `.hacker`, `.neon`, `.matrix`, `.fire`, and the other listed text styles) are now generated locally with Sharp and SVG, without sending text to external services.
+- Image enhancement (`.remini`), basic uniform-background removal (`.removebg`), `.wasted`, graphic effects and welcome/goodbye cards now run **locally** using Sharp; they do not upload media to cloud image APIs.
+- Textmaker commands (`.hacker`, `.neon`, `.matrix`, etc.) also render locally. `.tts` uses the separately installed local `espeak-ng` voice engine.
+- `.imagine` and `.sora` create local prompt-art and short animated text cards, **not AI-created images or generative video**. `.ss` creates a URL card rather than visiting a website or capturing a real screenshot. `.url` reports local metadata and a file hash, not a public hosting link. These deliberate limitations avoid silently uploading private user content.
+- External AI/media-upload providers, unsafe ZIP self-update, and automated forwarding of private statuses or view-once content remain disabled.
 - Existing downloader implementations were not changed: YouTube/audio/video, Instagram, TikTok, Facebook, X/Twitter, Spotify, etc. Existing API credentials/settings for downloaders are retained.
 
 **Network privacy boundary:** WhatsApp itself uses Meta's network. Media downloading requires connections to source platforms and the downloader services already present in this project; requested URLs, search text and sometimes media can be visible to those services. Do not treat the entire bot as offline or zero-egress. Review any optional non-downloader commands before enabling them.

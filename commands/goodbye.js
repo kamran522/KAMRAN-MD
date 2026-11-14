@@ -1,7 +1,6 @@
 const { handleGoodbye } = require('../lib/welcome');
 const { isGoodByeOn, getGoodbye } = require('../lib/index');
 const { lidToMention } = require('../lib/jidHelper');
-const fetch = require('node-fetch');
 
 async function goodbyeCommand(sock, chatId, message, match) {
     if (!chatId.endsWith('@g.us')) {
@@ -61,29 +60,17 @@ async function handleLeaveEvent(sock, id, participants) {
             }
 
             try {
-                throw new Error('External goodbye image service disabled for privacy');
-                let profilePicUrl = `https://img.pyrocdn.com/dbKUgahg.png`;
-                try {
-                    const profilePic = await sock.profilePictureUrl(mentionJid, 'image');
-                    if (profilePic) profilePicUrl = profilePic;
-                } catch {
-                    console.log('Could not fetch profile picture, using default');
-                }
-
-                const apiUrl = `https://api.some-random-api.com/welcome/img/2/gaming1?type=leave&textcolor=red&username=${encodeURIComponent(displayName)}&guildName=${encodeURIComponent(groupName)}&memberCount=${groupMetadata.participants.length}&avatar=${encodeURIComponent(profilePicUrl)}`;
-
-                const response = await fetch(apiUrl);
-                if (response.ok) {
-                    const imageBuffer = await response.buffer();
-                    await sock.sendMessage(id, {
-                        image: imageBuffer,
-                        caption: finalMessage,
-                        mentions
-                    });
-                    continue;
-                }
-            } catch {
-                console.log('Image generation failed, falling back to text');
+                // Locally rendered card: no third-party image API or avatar upload.
+                const { sharp, card } = require('../lib/local-media');
+                const imageBuffer = await sharp(card("Goodbye " + displayName, 'KAMRAN-MD · ' + groupName, ['#32202a', '#67435b', '#ffe3d2'])).png().toBuffer();
+                await sock.sendMessage(id, {
+                    image: imageBuffer,
+                    caption: finalMessage,
+                    mentions
+                });
+                continue;
+            } catch (error) {
+                console.error('[local goodbye image]', error.message);
             }
 
             await sock.sendMessage(id, {
