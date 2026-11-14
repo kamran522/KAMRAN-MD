@@ -36,7 +36,7 @@ const downloaders = {
   'commands/instagram.js': 'a343bbd2225b7ef898ee6c8e936680f5455d0e23',
   'commands/igs.js': 'de6d1093eab231273bfc4b964e623a99f0b7f840',
   'commands/play.js': 'e9a9964a6a3e854b1ce66c149de889f24a1ec441',
-  'commands/song.js': '7974c92631599dbc6bf9296787f8cdd3a017ba7',
+  'commands/song.js': '5f4982bf76f79403525217e57490b1c98b41060a',
   'commands/tiktok.js': 'c397d28a0b660d45cf73fc65e6031da96d961783',
   'commands/twitter.js': '6178e1c6ce1bf8a2ce567156c7f82e9ce97b5',
   'commands/spotify.js': '8a741c92631599dbc6bf9296787f8cdd3a017ba7',
