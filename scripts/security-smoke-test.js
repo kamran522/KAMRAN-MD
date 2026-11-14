@@ -23,6 +23,8 @@ assert(read('settings.js').includes("ownerNumber: '923111008401'"));
 assert.deepStrictEqual(JSON.parse(read('data/owner.json')), ['923111008401']);
 assert.match(read('lib/local-ai.js'), /hostname: '127\.0\.0\.1'/);
 assert.match(read('index.js'), /useMultiFileAuthState\(sessionDir\)/);
+assert.doesNotMatch(read('index.js'), /forwardedNewsletterMessageInfo/);
+assert.match(read('index.js'), /https:\/\/chat\.whatsapp\.com\/EzyVODEyTNiECpAAYgawXR/);
 assert.match(read('index.js'), /terminalQR\.generate\(qr, \{ small: true \}\)/);
 assert.match(read('index.js'), /printQRInTerminal: false/);
 assert.doesNotMatch(read('commands/pair.js'), /knight-bot-paircode\.onrender\.com/);
