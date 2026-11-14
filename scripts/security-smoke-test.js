@@ -24,7 +24,16 @@ assert.deepStrictEqual(JSON.parse(read('data/owner.json')), ['923111008401']);
 assert.match(read('lib/local-ai.js'), /hostname: '127\.0\.0\.1'/);
 assert.match(read('index.js'), /useMultiFileAuthState\(sessionDir\)/);
 assert.doesNotMatch(read('index.js'), /forwardedNewsletterMessageInfo/);
-assert.match(read('index.js'), /https:\/\/chat\.whatsapp\.com\/EzyVODEyTNiECpAAYgawXR/);
+assert.match(read('index.js'), /supportGroupLink/);
+assert.match(read('lib/messageConfig.js'), /https:\/\/chat\.whatsapp\.com\/EzyVODEyTNiECpAAYgawXR/);
+assert.match(read('commands/help.js'), /Join our WhatsApp group for updates/);
+assert.match(read('commands/alive.js'), /supportGroupLink/);
+assert.match(read('main.js'), /Join our WhatsApp group/);
+assert.doesNotMatch(read('commands/help.js'), /Join our channel for updates/i);
+for (const file of allJS(base)) {
+  if (file === __filename) continue;
+  assert.doesNotMatch(fs.readFileSync(file, 'utf8'), /forwardedNewsletterMessageInfo|120363161513685998@newsletter/, 'Stale newsletter promo: ' + file);
+}
 assert.match(read('index.js'), /terminalQR\.generate\(qr, \{ small: true \}\)/);
 assert.match(read('index.js'), /printQRInTerminal: false/);
 assert.doesNotMatch(read('commands/pair.js'), /knight-bot-paircode\.onrender\.com/);

@@ -26,6 +26,7 @@ setInterval(() => {
 }, 3 * 60 * 60 * 1000);
 
 const settings = require('./settings');
+const { supportGroupLink } = require('./lib/messageConfig');
 require('./config.js');
 const { isBanned } = require('./lib/isBanned');
 const yts = require('yt-search');
@@ -153,7 +154,7 @@ const soraCommand = require('./commands/sora');
 // Global settings
 global.packname = settings.packname;
 global.author = settings.author;
-global.channelLink = '';
+global.supportGroupLink = supportGroupLink;
 global.ytch = '';
 
 // Add this near the top of main.js with other global configurations
@@ -193,7 +194,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
 
             if (buttonId === 'channel') {
                 await sock.sendMessage(chatId, {
-                    text: 'External promotional channel links are disabled.'
+                    text: `Join our WhatsApp group: ${supportGroupLink}`
                 }, { quoted: message });
                 return;
             } else if (buttonId === 'owner') {
@@ -202,7 +203,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
                 return;
             } else if (buttonId === 'support') {
                 await sock.sendMessage(chatId, {
-                    text: `Contact ${settings.botOwner}: +${settings.ownerNumber}`
+                    text: `Contact ${settings.botOwner}: +${settings.ownerNumber}\n\nWhatsApp group: ${supportGroupLink}`
                 }, { quoted: message });
                 return;
             }
@@ -416,7 +417,7 @@ async function handleMessages(sock, messageUpdate, printLog) {
                 await unbanCommand(sock, chatId, message);
                 break;
             case userMessage === '.help' || userMessage === '.menu' || userMessage === '.bot' || userMessage === '.list':
-                await helpCommand(sock, chatId, message, global.channelLink);
+                await helpCommand(sock, chatId, message);
                 commandExecuted = true;
                 break;
             case userMessage === '.sticker' || userMessage === '.s':

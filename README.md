@@ -1,7 +1,8 @@
 # KAMRAN-MD — locally paired WhatsApp bot
 
 **Configured bot owner:** Kamran Hasil (+923111008401)  
-**Repository:** https://github.com/kamran522/KAMRAN-MD
+**Repository:** https://github.com/kamran522/KAMRAN-MD  
+**Official WhatsApp group:** https://chat.whatsapp.com/EzyVODEyTNiECpAAYgawXR
 
 This is an updated deployment of the Baileys-based WhatsApp bot. It stores WhatsApp authentication on **your server** instead of using an external pairing website. Text AI commands use **a local Ollama model** and do not require an AI API key. Existing media download handlers remain unchanged.
 
@@ -56,6 +57,12 @@ Baileys stores its authentication keys in `./session` by default. Set `SESSION_D
 | `.owner`, `.menu`, `.ping` | Owner contact, commands, connectivity |
 
 Media download commands **continue to use the original external services**; they are not offline. Download success depends on those services and platform availability.
+
+## Support group
+
+Use the official WhatsApp group for bot help, updates, and support: https://chat.whatsapp.com/EzyVODEyTNiECpAAYgawXR
+
+The bot's `.menu` / `.help` and `.alive` messages display this group invite. Old newsletter and channel promotion metadata was removed from outgoing replies; WhatsApp group invitations appear as normal clickable links, not as a "View channel" button.
 
 ## What changed for privacy
 

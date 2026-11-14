@@ -55,6 +55,7 @@ const store = require('./lib/lightweight_store')
 store.readFromFile()
 const settings = require('./settings')
 const localPairing = require('./lib/local-pairing')
+const { supportGroupLink } = require('./lib/messageConfig')
 const terminalQR = require('qrcode-terminal')
 const sessionDir = path.resolve(process.env.SESSION_DIR || path.join(__dirname, 'session'))
 fs.mkdirSync(sessionDir, { recursive: true, mode: 0o700 })
@@ -159,7 +160,7 @@ async function startXeonBotInc() {
                 // Only try to send error message if we have a valid chatId
                 if (mek.key && mek.key.remoteJid) {
                     await XeonBotInc.sendMessage(mek.key.remoteJid, {
-                        text: '❌ An error occurred while processing your message.\n\nSupport group: https://chat.whatsapp.com/EzyVODEyTNiECpAAYgawXR'
+                        text: `❌ An error occurred while processing your message.\n\nSupport group: ${supportGroupLink}`
                     }).catch(console.error);
                 }
             }
