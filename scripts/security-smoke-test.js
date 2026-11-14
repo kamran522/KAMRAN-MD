@@ -37,6 +37,10 @@ for (const file of allJS(base)) {
 assert.match(read('index.js'), /terminalQR\.generate\(qr, \{ small: true \}\)/);
 assert.match(read('index.js'), /printQRInTerminal: false/);
 assert.doesNotMatch(read('commands/pair.js'), /knight-bot-paircode\.onrender\.com/);
+assert.match(read('commands/textmaker.js'), /require\('sharp'\)/);
+assert.match(read('commands/textmaker.js'), /async function textmakerCommand/);
+assert.match(read('commands/textmaker.js'), /function makeSVG/);
+assert.doesNotMatch(read('commands/textmaker.js'), /axios|fetch\s*\(|api\.textmaker|uploadImage/);
 assert.doesNotMatch(read('commands/chatbot.js'), /zellapi\.autos/);
 assert.doesNotMatch(read('lib/api.js'), /\/api\/ai\/(chat|gpt)/);
 assert.doesNotMatch(read('commands/update.js'), /reset --hard|downloadFile\(/);

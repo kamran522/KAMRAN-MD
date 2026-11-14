@@ -58,6 +58,12 @@ Baileys stores its authentication keys in `./session` by default. Set `SESSION_D
 
 Media download commands **continue to use the original external services**; they are not offline. Download success depends on those services and platform availability.
 
+## Local textmaker images
+
+Send `.hacker KAMI` to receive a hacker-style PNG image made directly on the bot server. Other effects such as `.matrix TEXT`, `.neon TEXT`, `.metallic TEXT`, `.ice TEXT`, `.blackpink TEXT`, and `.fire TEXT` work the same way. They use the existing `sharp` package; no image API key or cloud service is needed. Text is limited to 64 characters. These are locally generated alternatives rather than replicas of the previously used third-party templates.
+
+Media download commands **continue to use the original external services**; they are not offline. Download success depends on those services and platform availability.
+
 ## Support group
 
 Use the official WhatsApp group for bot help, updates, and support: https://chat.whatsapp.com/EzyVODEyTNiECpAAYgawXR
@@ -70,7 +76,7 @@ The bot's `.menu` / `.help` and `.alive` messages display this group invite. Old
 - `.ai`, `.gpt`, `.gemini`, chatbot responses and translation are routed to loopback Ollama; no third-party AI prompt forwarding.
 - Automatic forwarding of deleted messages, view-once media and statuses disabled. **Manual** `.savestatus` stays available.
 - Unsafe remote ZIP update / hard Git reset disabled. Deploy reviewed commits manually.
-- Third-party content uploads, cloud TTS, screenshot rendering, image processing, image/video generation, image-card/text effects, and remote welcome/goodbye images disabled instead of silently uploading text, profile pictures or media.
+- Third-party content uploads, cloud TTS, screenshot rendering, image processing, image/video generation, image-card effects, and remote welcome/goodbye images remain disabled to avoid uploading text, profile pictures or media. Textmaker effects (including `.hacker`, `.neon`, `.matrix`, `.fire`, and the other listed text styles) are now generated locally with Sharp and SVG, without sending text to external services.
 - Existing downloader implementations were not changed: YouTube/audio/video, Instagram, TikTok, Facebook, X/Twitter, Spotify, etc. Existing API credentials/settings for downloaders are retained.
 
 **Network privacy boundary:** WhatsApp itself uses Meta's network. Media downloading requires connections to source platforms and the downloader services already present in this project; requested URLs, search text and sometimes media can be visible to those services. Do not treat the entire bot as offline or zero-egress. Review any optional non-downloader commands before enabling them.
