@@ -13,6 +13,8 @@ Requirements: Node.js 18+, ffmpeg, enough RAM/disk for an Ollama model, and a se
 git clone https://github.com/kamran522/KAMRAN-MD.git
 cd KAMRAN-MD
 npm install --legacy-peer-deps
+cp .env.example .env
+npm test
 # Install Ollama from its official instructions if not already installed:
 # https://ollama.com/download
 ollama pull qwen2.5:1.5b
@@ -20,7 +22,7 @@ ollama pull qwen2.5:1.5b
 npm start
 ```
 
-The model weights must be downloaded once; subsequent AI inference runs on the same machine, through `127.0.0.1:11434`. Override the model with `OLLAMA_MODEL` and local port with `OLLAMA_PORT`.
+The model weights must be downloaded once; subsequent AI inference runs on the same machine, through `127.0.0.1:11434`. Override the model with `OLLAMA_MODEL` and local port with `OLLAMA_PORT` in `.env`. Make sure Ollama is running: start `ollama serve` if your operating system has not started the service automatically. The selected model needs sufficient memory to load.
 
 ## QR and pairing code — hosted locally
 
@@ -36,6 +38,21 @@ Then visit `http://127.0.0.1:3000` on your computer. The QR and pairing code are
 
 Baileys stores its authentication keys in `./session` by default. Set `SESSION_DIR` to an absolute, persistent server path when deploying. The program requests restrictive permissions (0700 directory, 0077 umask). Never upload this directory, `creds.json`, or your `.env` file to GitHub or a third-party pairing site. Back up securely only if needed.
 
+## Useful commands
+
+| Command | Behavior |
+| --- | --- |
+| `.ai <question>`, `.gpt <question>`, `.gemini <question>` | Generate answers with local Ollama |
+| `.chatbot on` / `.chatbot off` | Enable or disable the local-AI chatbot in a group |
+| `.trt <text> <language>` | Translate through local Ollama |
+| `.play <search>`, `.song <search>`, `.video <url>` | Existing YouTube/audio/video downloader functions |
+| `.fb <url>`, `.instagram <url>`, `.igs <url>`, `.tiktok <url>` | Existing social-media downloader functions |
+| `.twitter <url>`, `.spotify <search>` | Existing downloader functions |
+| `.savestatus` (reply to a status) | Manually save a WhatsApp status |
+| `.owner`, `.menu`, `.ping` | Owner contact, commands, connectivity |
+
+Media download commands **continue to use the original external services**; they are not offline. Download success depends on those services and platform availability.
+
 ## What changed for privacy
 
 - External pairing-code service removed from the `.pair` command. Login is available on the local server only.
@@ -49,7 +66,7 @@ Baileys stores its authentication keys in `./session` by default. Set `SESSION_D
 
 ## Verification
 
-Run `npm test` for static syntax, key security invariants, and downloader source-preservation checks. These tests do **not** prove the program is free of all backdoors. Review dependencies and deployed processes separately; this repository currently has no tracked lockfile. No deployment or runtime WhatsApp pairing was performed by this change.
+Run `npm test` for static syntax, key security invariants, and downloader source-preservation checks. These tests do **not** prove the program is free of all backdoors. Review dependencies and deployed processes separately; this repository currently has no tracked lockfile. The GitHub Actions security smoke checks passed for the reviewed branch. They check JavaScript syntax and source preservation but do not exercise live WhatsApp login or media downloading. No deployment or runtime WhatsApp pairing was performed by this change.
 
 ## Attribution and license
 
